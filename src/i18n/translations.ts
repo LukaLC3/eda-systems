@@ -1031,12 +1031,12 @@ for (const k of Object.keys(extra) as Lang[]) Object.assign(dictionaries[k], ext
 
 /** Specialty tag for each sector, per language. */
 export const SECTOR_SPECIALTY: Record<string, Record<Lang, string>> = {
-  vastgoed:    { en: "SELL",     nl: "VERKOPEN",     fr: "VENDRE",     de: "VERKAUFEN" },
-  tandartsen:  { en: "TREAT",    nl: "BEHANDELEN",   fr: "TRAITER",    de: "BEHANDELN" },
-  kinesisten:  { en: "RESTORE",  nl: "HERSTELLEN",   fr: "RÉTABLIR",   de: "BEHANDELN" },
-  accountants: { en: "OPTIMISE", nl: "OPTIMALISEREN",fr: "OPTIMISER",  de: "OPTIMIEREN" },
-  architecten: { en: "DESIGN",   nl: "ONTWERPEN",    fr: "CONCEVOIR",  de: "ENTWERFEN" },
-  garages:     { en: "REPAIR",   nl: "HERSTELLEN",   fr: "RÉPARER",    de: "REPARIEREN" },
-  horeca:      { en: "HOST",     nl: "ONTHALEN",     fr: "ACCUEILLIR", de: "BEWIRTEN" },
+  vastgoed:    { en: "SELL / VERKOPEN",         nl: "SELL / VERKOPEN",         fr: "SELL / VERKOPEN",         de: "SELL / VERKOPEN" },
+  tandartsen:  { en: "TREAT / BEHANDELEN",      nl: "TREAT / BEHANDELEN",      fr: "TREAT / BEHANDELEN",      de: "TREAT / BEHANDELEN" },
+  kinesisten:  { en: "RESTORE / HERSTELLEN",    nl: "RESTORE / HERSTELLEN",    fr: "RESTORE / HERSTELLEN",    de: "RESTORE / HERSTELLEN" },
+  accountants: { en: "OPTIMISE / OPTIMALISEREN",nl: "OPTIMISE / OPTIMALISEREN",fr: "OPTIMISE / OPTIMALISEREN",de: "OPTIMISE / OPTIMALISEREN" },
+  architecten: { en: "DESIGN / ONTWERPEN",      nl: "DESIGN / ONTWERPEN",      fr: "DESIGN / ONTWERPEN",      de: "DESIGN / ONTWERPEN" },
+  garages:     { en: "REPAIR / HERSTELLEN",     nl: "REPAIR / HERSTELLEN",     fr: "REPAIR / HERSTELLEN",     de: "REPAIR / HERSTELLEN" },
+  horeca:      { en: "HOST / ONTHALEN",         nl: "HOST / ONTHALEN",         fr: "HOST / ONTHALEN",         de: "HOST / ONTHALEN" },
 };
 
