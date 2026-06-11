@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OverOnsRouteImport } from './routes/over-ons'
 import { Route as ExperienceRouteImport } from './routes/experience'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as IndexRouteImport } from './routes/index'
 
 const OverOnsRoute = OverOnsRouteImport.update({
@@ -23,6 +24,11 @@ const ExperienceRoute = ExperienceRouteImport.update({
   path: '/experience',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,30 +37,34 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/demo': typeof DemoRoute
   '/experience': typeof ExperienceRoute
   '/over-ons': typeof OverOnsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/demo': typeof DemoRoute
   '/experience': typeof ExperienceRoute
   '/over-ons': typeof OverOnsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/demo': typeof DemoRoute
   '/experience': typeof ExperienceRoute
   '/over-ons': typeof OverOnsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/experience' | '/over-ons'
+  fullPaths: '/' | '/demo' | '/experience' | '/over-ons'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/experience' | '/over-ons'
-  id: '__root__' | '/' | '/experience' | '/over-ons'
+  to: '/' | '/demo' | '/experience' | '/over-ons'
+  id: '__root__' | '/' | '/demo' | '/experience' | '/over-ons'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DemoRoute: typeof DemoRoute
   ExperienceRoute: typeof ExperienceRoute
   OverOnsRoute: typeof OverOnsRoute
 }
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExperienceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DemoRoute: DemoRoute,
   ExperienceRoute: ExperienceRoute,
   OverOnsRoute: OverOnsRoute,
 }
