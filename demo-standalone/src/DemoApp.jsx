@@ -140,12 +140,193 @@ function StatusBadge({ status }) {
   return <span style={{ ...cfg, borderRadius: 6, padding: '3px 10px', fontSize: 12, fontWeight: 600 }}>{status}</span>
 }
 
+// ─── Circuit Board Animation ──────────────────────────────────────────────────
+
+function CircuitBoard() {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+
+    const GRID = 44
+    let segments = [], nodes = [], nodeSet = new Set(), pulses = []
+
+    function distFromCenter(x, y) {
+      const W = canvas.width, H = canvas.height
+      const dx = Math.abs(x - W / 2) / (W / 2)
+      const dy = Math.abs(y - H / 2) / (H / 2)
+      return Math.max(dx, dy) // 0=center, 1=edge
+    }
+
+    function snap(v) { return Math.round(v / GRID) * GRID }
+
+    function addNode(x, y) {
+      const key = `${x},${y}`
+      if (!nodeSet.has(key)) {
+        nodeSet.add(key)
+        nodes.push({ x, y, filled: Math.random() < 0.55, pulse: 0 })
+      }
+    }
+
+    function generate() {
+      segments = []; nodes = []; nodeSet = new Set(); pulses = []
+      const W = canvas.width, H = canvas.height
+
+      // 70 walkers launched from all 4 edges
+      for (let i = 0; i < 70; i++) {
+        const edge = i % 4
+        let x, y, dx, dy
+        if (edge === 0) { x = snap(Math.random() * W); y = 0; dx = 0; dy = GRID }
+        else if (edge === 1) { x = snap(Math.random() * W); y = snap(H); dx = 0; dy = -GRID }
+        else if (edge === 2) { x = 0; y = snap(Math.random() * H); dx = GRID; dy = 0 }
+        else { x = snap(W); y = snap(Math.random() * H); dx = -GRID; dy = 0 }
+
+        let cx = x, cy = y
+        const steps = 5 + Math.floor(Math.random() * 14)
+        for (let s = 0; s < steps; s++) {
+          const dist = distFromCenter(cx, cy)
+          // Stop more aggressively near center (dist < 0.35 = center zone)
+          if (dist < 0.35 && Math.random() < 0.88) break
+          if (dist < 0.55 && Math.random() < 0.45) break
+
+          const nx = cx + dx, ny = cy + dy
+          if (nx < -GRID || nx > W + GRID || ny < -GRID || ny > H + GRID) break
+
+          segments.push({ x1: cx, y1: cy, x2: nx, y2: ny })
+          addNode(cx, cy)
+          addNode(nx, ny)
+          cx = nx; cy = ny
+
+          // Turn 90° sometimes
+          if (Math.random() < 0.30) {
+            if (dx !== 0) { dx = 0; dy = Math.random() < 0.5 ? GRID : -GRID }
+            else { dy = 0; dx = Math.random() < 0.5 ? GRID : -GRID }
+          }
+        }
+      }
+
+      // Seed initial pulses
+      for (let i = 0; i < 18; i++) spawnPulse()
+    }
+
+    function spawnPulse() {
+      if (!segments.length) return
+      const seg = segments[Math.floor(Math.random() * segments.length)]
+      pulses.push({
+        seg,
+        t: Math.random(),
+        speed: 0.0025 + Math.random() * 0.004,
+        len: 0.18 + Math.random() * 0.22,
+        col: Math.random() < 0.78 ? '#2563EB' : '#ffffff',
+      })
+    }
+
+    let animId, lastTime = 0
+    const FRAME = 1000 / 30
+
+    function draw(ts) {
+      animId = requestAnimationFrame(draw)
+      if (document.hidden || ts - lastTime < FRAME) return
+      lastTime = ts
+
+      const W = canvas.width, H = canvas.height
+      ctx.clearRect(0, 0, W, H)
+
+      // Lines
+      ctx.strokeStyle = '#1E3A5F'
+      ctx.lineWidth = 0.7
+      ctx.lineCap = 'square'
+      for (const seg of segments) {
+        ctx.beginPath()
+        ctx.moveTo(seg.x1, seg.y1)
+        ctx.lineTo(seg.x2, seg.y2)
+        ctx.stroke()
+      }
+
+      // Pulses
+      for (let i = pulses.length - 1; i >= 0; i--) {
+        const p = pulses[i]
+        p.t += p.speed
+        if (p.t > 1 + p.len) {
+          pulses.splice(i, 1)
+          if (Math.random() < 0.85) spawnPulse()
+          continue
+        }
+        const t1 = Math.max(0, p.t - p.len), t2 = Math.min(1, p.t)
+        const px1 = p.seg.x1 + (p.seg.x2 - p.seg.x1) * t1
+        const py1 = p.seg.y1 + (p.seg.y2 - p.seg.y1) * t1
+        const px2 = p.seg.x1 + (p.seg.x2 - p.seg.x1) * t2
+        const py2 = p.seg.y1 + (p.seg.y2 - p.seg.y1) * t2
+        if (px1 === px2 && py1 === py2) continue
+
+        const g = ctx.createLinearGradient(px1, py1, px2, py2)
+        g.addColorStop(0, p.col + '00')
+        g.addColorStop(0.5, p.col + 'cc')
+        g.addColorStop(1, p.col + '00')
+        ctx.save()
+        ctx.strokeStyle = g
+        ctx.lineWidth = 1.8
+        ctx.shadowColor = p.col
+        ctx.shadowBlur = 10
+        ctx.beginPath()
+        ctx.moveTo(px1, py1)
+        ctx.lineTo(px2, py2)
+        ctx.stroke()
+        ctx.restore()
+      }
+
+      // Nodes
+      for (const n of nodes) {
+        if (n.filled) {
+          ctx.save()
+          ctx.fillStyle = '#2563EB'
+          ctx.shadowColor = '#2563EB'
+          ctx.shadowBlur = 10
+          ctx.beginPath()
+          ctx.arc(n.x, n.y, 2.8, 0, Math.PI * 2)
+          ctx.fill()
+          ctx.restore()
+        } else {
+          ctx.strokeStyle = '#1E3A5F'
+          ctx.lineWidth = 0.8
+          ctx.beginPath()
+          ctx.arc(n.x, n.y, 2.2, 0, Math.PI * 2)
+          ctx.stroke()
+        }
+      }
+    }
+
+    const resize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+      generate()
+    }
+
+    window.addEventListener('resize', resize)
+    resize()
+    animId = requestAnimationFrame(draw)
+    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize) }
+  }, [])
+
+  return (
+    <canvas ref={canvasRef} style={{
+      position: 'fixed', inset: 0, zIndex: 0,
+      opacity: 0.18, pointerEvents: 'none',
+    }} />
+  )
+}
+
 // ─── Landing Screen ───────────────────────────────────────────────────────────
 
 function LandingScreen({ onSelect }) {
   const [hovered, setHovered] = useState(null)
   return (
-    <div style={{ minHeight: '100vh', background: S.background, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
+    <div style={{ position: 'relative', minHeight: '100vh', background: S.background, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
+      <CircuitBoard />
+      {/* Content above canvas */}
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
       {/* Logo */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ width: 40, height: 40, background: S.accent, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -204,6 +385,7 @@ function LandingScreen({ onSelect }) {
       <div style={{ marginTop: 48, fontSize: 12, color: S.textMuted, textAlign: 'center' }}>
         EDA Systems · Belgisch digitaliseringsbedrijf · Alle pakketten excl. 21% BTW
       </div>
+      </div>{/* end content wrapper */}
     </div>
   )
 }
