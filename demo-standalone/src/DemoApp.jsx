@@ -328,14 +328,8 @@ function LandingScreen({ onSelect }) {
       {/* Content above canvas */}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
       {/* Logo */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{ width: 40, height: 40, background: S.accent, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Zap size={22} color="#fff" />
-        </div>
-        <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.04em' }}>
-          <span style={{ color: '#fff' }}>EDA</span>
-          <span style={{ color: S.accent }}> Systems</span>
-        </div>
+      <div style={{ marginBottom: 24 }}>
+        <img src="/logo.png" alt="EDA Systems" style={{ height: 140, objectFit: 'contain' }} />
       </div>
       <div style={{ fontSize: 13, color: S.textMuted, letterSpacing: '0.1em', fontWeight: 600, marginBottom: 8 }}>INTERACTIEVE SALES DEMO</div>
       <h1 style={{ fontSize: 32, fontWeight: 800, color: '#fff', textAlign: 'center', letterSpacing: '-0.03em', marginBottom: 8 }}>
@@ -1075,6 +1069,9 @@ function Dashboard({ sectorId, onBack }) {
       {/* Top bar */}
       <header style={{ background: S.card, borderBottom: `1px solid ${S.border}`, padding: '0 24px', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, height: 60 }}>
+          {/* Logo */}
+          <img src="/logo.png" alt="EDA Systems" style={{ height: 40, objectFit: 'contain' }} />
+
           {/* Back */}
           <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'transparent', border: `1px solid ${S.border}`, borderRadius: 7, color: S.textSecondary, fontSize: 13, cursor: 'pointer' }}>
             <ArrowLeft size={14} /> Sectoren
