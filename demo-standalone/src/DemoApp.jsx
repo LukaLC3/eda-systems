@@ -313,7 +313,7 @@ function CircuitBoard() {
   return (
     <canvas ref={canvasRef} style={{
       position: 'fixed', inset: 0, zIndex: 0,
-      opacity: 0.18, pointerEvents: 'none',
+      opacity: 0.35, pointerEvents: 'none',
     }} />
   )
 }
