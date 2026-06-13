@@ -144,77 +144,119 @@ function StatusBadge({ status }) {
 
 function EDALogo({ size = 120, compact = false }) {
   const s = size
+  // Compact: small icon + text side by side (for header)
   if (compact) return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <svg width={s} height={s} viewBox="0 0 36 36" fill="none">
-        {/* House */}
-        <polyline points="4,20 18,8 32,20" stroke="#CBD5E1" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        <rect x="13" y="15" width="5" height="5" rx="0.5" stroke="#CBD5E1" strokeWidth="1.2" fill="none"/>
-        {/* Building left */}
-        <rect x="5" y="15" width="6" height="9" stroke="#94A3B8" strokeWidth="1.2" fill="none"/>
-        <line x1="7" y1="17" x2="9" y2="17" stroke="#94A3B8" strokeWidth="0.7"/>
-        <line x1="7" y1="19" x2="9" y2="19" stroke="#94A3B8" strokeWidth="0.7"/>
-        {/* AI chip right */}
-        <rect x="22" y="13" width="8" height="8" rx="1" fill="#1E3A5F" stroke="#2563EB" strokeWidth="1.2"/>
-        <text x="26" y="19.5" textAnchor="middle" fontSize="4.5" fontWeight="700" fill="#2563EB" fontFamily="Arial">AI</text>
-        <line x1="24" y1="13" x2="24" y2="11" stroke="#2563EB" strokeWidth="0.8"/>
-        <line x1="27" y1="13" x2="27" y2="11" stroke="#2563EB" strokeWidth="0.8"/>
-        <line x1="30" y1="16" x2="32" y2="16" stroke="#2563EB" strokeWidth="0.8"/>
-        <line x1="30" y1="19" x2="32" y2="19" stroke="#2563EB" strokeWidth="0.8"/>
-        <circle cx="24" cy="11" r="1" fill="#2563EB"/>
-        <circle cx="27" cy="11" r="1" fill="#2563EB"/>
-        <circle cx="32" cy="16" r="1" fill="#2563EB"/>
-        <circle cx="32" cy="19" r="1" fill="#2563EB"/>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <svg width={s} height={s} viewBox="0 0 40 40" fill="none">
+        {/* Circle background — left half grey, right half dark */}
+        <clipPath id="cl"><circle cx="20" cy="16" r="14"/></clipPath>
+        <circle cx="20" cy="16" r="14" fill="#1A2235"/>
+        <rect x="20" y="2" width="14" height="28" fill="#0D1520" clipPath="url(#cl)"/>
+        {/* Buildings left side */}
+        <rect x="9" y="10" width="5" height="12" stroke="#94A3B8" strokeWidth="0.9" fill="none"/>
+        <rect x="14" y="7" width="4" height="15" stroke="#B0BCC8" strokeWidth="0.9" fill="none"/>
+        <line x1="10" y1="13" x2="13" y2="13" stroke="#64748B" strokeWidth="0.5"/>
+        <line x1="10" y1="16" x2="13" y2="16" stroke="#64748B" strokeWidth="0.5"/>
+        <line x1="15" y1="10" x2="17" y2="10" stroke="#64748B" strokeWidth="0.5"/>
+        <line x1="15" y1="13" x2="17" y2="13" stroke="#64748B" strokeWidth="0.5"/>
+        {/* House roofline spanning full width */}
+        <polyline points="7,24 20,14 33,24" stroke="#CBD5E1" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        {/* Window on house */}
+        <rect x="18" y="19" width="4" height="4" stroke="#CBD5E1" strokeWidth="0.8" fill="none"/>
+        <line x1="20" y1="19" x2="20" y2="23" stroke="#CBD5E1" strokeWidth="0.5"/>
+        <line x1="18" y1="21" x2="22" y2="21" stroke="#CBD5E1" strokeWidth="0.5"/>
+        {/* AI chip right side */}
+        <rect x="24" y="8" width="9" height="9" rx="1.2" fill="#0D1B2E" stroke="#2563EB" strokeWidth="1"/>
+        <text x="28.5" y="15" textAnchor="middle" fontSize="4" fontWeight="800" fill="#2563EB" fontFamily="Arial">AI</text>
+        {/* Circuit lines from chip */}
+        <line x1="26" y1="8" x2="26" y2="5.5" stroke="#2563EB" strokeWidth="0.7"/>
+        <line x1="29" y1="8" x2="29" y2="4.5" stroke="#2563EB" strokeWidth="0.7"/>
+        <line x1="33" y1="11" x2="35.5" y2="11" stroke="#2563EB" strokeWidth="0.7"/>
+        <line x1="33" y1="14" x2="36" y2="14" stroke="#2563EB" strokeWidth="0.7"/>
+        <line x1="33" y1="17" x2="35.5" y2="17" stroke="#2563EB" strokeWidth="0.7"/>
+        <circle cx="26" cy="5.5" r="0.9" fill="#2563EB"/>
+        <circle cx="29" cy="4.5" r="0.9" fill="#2563EB"/>
+        <circle cx="35.5" cy="11" r="0.9" fill="#2563EB" opacity="0.7"/>
+        <circle cx="36" cy="14" r="0.9" fill="#2563EB"/>
+        <circle cx="35.5" cy="17" r="0.9" fill="#2563EB" opacity="0.7"/>
       </svg>
-      <div>
-        <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1 }}>
+      <div style={{ lineHeight: 1 }}>
+        <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: '0.04em' }}>
           <span style={{ color: '#2563EB' }}>EDA</span>
           <span style={{ color: '#F1F5F9' }}> SYSTEMS</span>
         </div>
       </div>
     </div>
   )
+
+  // Full logo for landing screen
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <svg width={s} height={s * 0.75} viewBox="0 0 200 150" fill="none">
-        {/* Glow circle bg */}
-        <circle cx="105" cy="60" r="55" fill="#0D1B2E" opacity="0.8"/>
-        {/* House roof */}
-        <polyline points="30,95 100,35 170,95" stroke="#CBD5E1" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        {/* Window */}
-        <rect x="88" y="72" width="24" height="23" rx="1" stroke="#CBD5E1" strokeWidth="2.5" fill="none"/>
-        <line x1="100" y1="72" x2="100" y2="95" stroke="#CBD5E1" strokeWidth="1.5"/>
-        <line x1="88" y1="83" x2="112" y2="83" stroke="#CBD5E1" strokeWidth="1.5"/>
-        {/* Building left */}
-        <rect x="32" y="60" width="32" height="38" stroke="#94A3B8" strokeWidth="2" fill="none"/>
-        <line x1="40" y1="68" x2="56" y2="68" stroke="#94A3B8" strokeWidth="1.2"/>
-        <line x1="40" y1="76" x2="56" y2="76" stroke="#94A3B8" strokeWidth="1.2"/>
-        <line x1="40" y1="84" x2="56" y2="84" stroke="#94A3B8" strokeWidth="1.2"/>
-        {/* AI chip */}
-        <rect x="118" y="28" width="42" height="42" rx="4" fill="#0D1B2E" stroke="#2563EB" strokeWidth="2.5"/>
-        <text x="139" y="56" textAnchor="middle" fontSize="18" fontWeight="800" fill="#2563EB" fontFamily="Arial, sans-serif">AI</text>
-        {/* Circuit lines */}
-        <line x1="128" y1="28" x2="128" y2="18" stroke="#2563EB" strokeWidth="1.8"/>
-        <line x1="139" y1="28" x2="139" y2="14" stroke="#2563EB" strokeWidth="1.8"/>
-        <line x1="150" y1="28" x2="150" y2="18" stroke="#2563EB" strokeWidth="1.8"/>
-        <line x1="160" y1="40" x2="172" y2="40" stroke="#2563EB" strokeWidth="1.8"/>
-        <line x1="160" y1="52" x2="176" y2="52" stroke="#2563EB" strokeWidth="1.8"/>
-        <line x1="160" y1="62" x2="172" y2="62" stroke="#2563EB" strokeWidth="1.8"/>
-        <circle cx="128" cy="17" r="3" fill="#2563EB"/>
-        <circle cx="139" cy="13" r="3" fill="#2563EB"/>
-        <circle cx="150" cy="17" r="3" fill="#2563EB"/>
-        <circle cx="173" cy="40" r="3" fill="#2563EB" opacity="0.6"/>
-        <circle cx="177" cy="52" r="3" fill="#2563EB"/>
-        <circle cx="173" cy="62" r="3" fill="#2563EB" opacity="0.6"/>
-        {/* Ground line */}
-        <line x1="20" y1="98" x2="180" y2="98" stroke="#475569" strokeWidth="1.5"/>
+      <svg width={s} height={s} viewBox="0 0 200 200" fill="none">
+        <defs>
+          <clipPath id="circ"><circle cx="100" cy="90" r="82"/></clipPath>
+          <radialGradient id="glowL" cx="35%" cy="50%" r="60%">
+            <stop offset="0%" stopColor="#4A5568" stopOpacity="0.5"/>
+            <stop offset="100%" stopColor="#0D1B2E" stopOpacity="0"/>
+          </radialGradient>
+        </defs>
+
+        {/* Main circle — split: left silver, right dark */}
+        <circle cx="100" cy="90" r="82" fill="#131E30"/>
+        {/* Left half slightly lighter for contrast */}
+        <rect x="18" y="8" width="82" height="164" fill="#1C2B3E" clipPath="url(#circ)"/>
+
+        {/* ── Buildings left ── */}
+        {/* Tall building */}
+        <rect x="38" y="42" width="22" height="62" stroke="#8899AA" strokeWidth="1.8" fill="none"/>
+        <line x1="44" y1="52" x2="54" y2="52" stroke="#64748B" strokeWidth="1"/>
+        <line x1="44" y1="62" x2="54" y2="62" stroke="#64748B" strokeWidth="1"/>
+        <line x1="44" y1="72" x2="54" y2="72" stroke="#64748B" strokeWidth="1"/>
+        <line x1="44" y1="82" x2="54" y2="82" stroke="#64748B" strokeWidth="1"/>
+        {/* Shorter building beside it */}
+        <rect x="60" y="55" width="16" height="49" stroke="#A0AEC0" strokeWidth="1.8" fill="none"/>
+        <line x1="64" y1="64" x2="72" y2="64" stroke="#718096" strokeWidth="1"/>
+        <line x1="64" y1="74" x2="72" y2="74" stroke="#718096" strokeWidth="1"/>
+        <line x1="64" y1="84" x2="72" y2="84" stroke="#718096" strokeWidth="1"/>
+
+        {/* ── House roofline ── */}
+        <polyline points="28,138 100,70 172,138" stroke="#CBD5E1" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        {/* Door/window on house */}
+        <rect x="91" y="112" width="18" height="26" stroke="#CBD5E1" strokeWidth="2" fill="none"/>
+        <line x1="100" y1="112" x2="100" y2="138" stroke="#CBD5E1" strokeWidth="1.2"/>
+        <line x1="91" y1="124" x2="109" y2="124" stroke="#CBD5E1" strokeWidth="1.2"/>
+
+        {/* ── AI chip right ── */}
+        <rect x="114" y="42" width="52" height="52" rx="5" fill="#0A1628" stroke="#2563EB" strokeWidth="2.5"/>
+        <text x="140" y="76" textAnchor="middle" fontSize="22" fontWeight="800" fill="#2563EB" fontFamily="Arial, sans-serif" letterSpacing="1">AI</text>
+        {/* Pin lines top */}
+        <line x1="124" y1="42" x2="124" y2="28" stroke="#2563EB" strokeWidth="1.8"/>
+        <line x1="136" y1="42" x2="136" y2="22" stroke="#2563EB" strokeWidth="1.8"/>
+        <line x1="148" y1="42" x2="148" y2="28" stroke="#2563EB" strokeWidth="1.8"/>
+        {/* Pin lines right */}
+        <line x1="166" y1="54" x2="180" y2="54" stroke="#2563EB" strokeWidth="1.8"/>
+        <line x1="166" y1="66" x2="184" y2="66" stroke="#2563EB" strokeWidth="1.8"/>
+        <line x1="166" y1="78" x2="180" y2="78" stroke="#2563EB" strokeWidth="1.8"/>
+        <line x1="166" y1="88" x2="176" y2="88" stroke="#2563EB" strokeWidth="1.8"/>
+        {/* End dots */}
+        <circle cx="124" cy="28" r="3.5" fill="#2563EB"/>
+        <circle cx="136" cy="22" r="3.5" fill="#2563EB"/>
+        <circle cx="148" cy="28" r="3.5" fill="#2563EB"/>
+        <circle cx="180" cy="54" r="3" fill="#2563EB" opacity="0.6"/>
+        <circle cx="184" cy="66" r="3" fill="#2563EB"/>
+        <circle cx="180" cy="78" r="3" fill="#2563EB" opacity="0.7"/>
+        <circle cx="176" cy="88" r="3" fill="#2563EB" opacity="0.5"/>
+
+        {/* Ground / horizon line */}
+        <line x1="18" y1="140" x2="182" y2="140" stroke="#2D3F55" strokeWidth="1.5"/>
       </svg>
+
       {/* Text */}
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
-        <span style={{ fontSize: s * 0.18, fontWeight: 800, color: '#2563EB', letterSpacing: '0.05em', fontFamily: 'Inter, sans-serif' }}>EDA</span>
-        <span style={{ fontSize: s * 0.18, fontWeight: 800, color: '#F1F5F9', letterSpacing: '0.05em', fontFamily: 'Inter, sans-serif' }}>SYSTEMS</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
+        <span style={{ fontSize: s * 0.17, fontWeight: 800, color: '#2563EB', letterSpacing: '0.06em', fontFamily: 'Inter, Arial, sans-serif' }}>EDA</span>
+        <span style={{ fontSize: s * 0.17, fontWeight: 800, color: '#F1F5F9', letterSpacing: '0.06em', fontFamily: 'Inter, Arial, sans-serif' }}>SYSTEMS</span>
       </div>
-      <div style={{ fontSize: s * 0.075, color: '#475569', marginTop: 4, letterSpacing: '0.03em' }}>
+      <div style={{ fontSize: s * 0.07, color: '#64748B', marginTop: 6, letterSpacing: '0.04em', fontFamily: 'Inter, Arial, sans-serif' }}>
         — Ready to put your business on autopilot? —
       </div>
     </div>
