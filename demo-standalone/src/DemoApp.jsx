@@ -140,6 +140,87 @@ function StatusBadge({ status }) {
   return <span style={{ ...cfg, borderRadius: 6, padding: '3px 10px', fontSize: 12, fontWeight: 600 }}>{status}</span>
 }
 
+// ─── EDA Systems Logo SVG ─────────────────────────────────────────────────────
+
+function EDALogo({ size = 120, compact = false }) {
+  const s = size
+  if (compact) return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <svg width={s} height={s} viewBox="0 0 36 36" fill="none">
+        {/* House */}
+        <polyline points="4,20 18,8 32,20" stroke="#CBD5E1" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        <rect x="13" y="15" width="5" height="5" rx="0.5" stroke="#CBD5E1" strokeWidth="1.2" fill="none"/>
+        {/* Building left */}
+        <rect x="5" y="15" width="6" height="9" stroke="#94A3B8" strokeWidth="1.2" fill="none"/>
+        <line x1="7" y1="17" x2="9" y2="17" stroke="#94A3B8" strokeWidth="0.7"/>
+        <line x1="7" y1="19" x2="9" y2="19" stroke="#94A3B8" strokeWidth="0.7"/>
+        {/* AI chip right */}
+        <rect x="22" y="13" width="8" height="8" rx="1" fill="#1E3A5F" stroke="#2563EB" strokeWidth="1.2"/>
+        <text x="26" y="19.5" textAnchor="middle" fontSize="4.5" fontWeight="700" fill="#2563EB" fontFamily="Arial">AI</text>
+        <line x1="24" y1="13" x2="24" y2="11" stroke="#2563EB" strokeWidth="0.8"/>
+        <line x1="27" y1="13" x2="27" y2="11" stroke="#2563EB" strokeWidth="0.8"/>
+        <line x1="30" y1="16" x2="32" y2="16" stroke="#2563EB" strokeWidth="0.8"/>
+        <line x1="30" y1="19" x2="32" y2="19" stroke="#2563EB" strokeWidth="0.8"/>
+        <circle cx="24" cy="11" r="1" fill="#2563EB"/>
+        <circle cx="27" cy="11" r="1" fill="#2563EB"/>
+        <circle cx="32" cy="16" r="1" fill="#2563EB"/>
+        <circle cx="32" cy="19" r="1" fill="#2563EB"/>
+      </svg>
+      <div>
+        <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1 }}>
+          <span style={{ color: '#2563EB' }}>EDA</span>
+          <span style={{ color: '#F1F5F9' }}> SYSTEMS</span>
+        </div>
+      </div>
+    </div>
+  )
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <svg width={s} height={s * 0.75} viewBox="0 0 200 150" fill="none">
+        {/* Glow circle bg */}
+        <circle cx="105" cy="60" r="55" fill="#0D1B2E" opacity="0.8"/>
+        {/* House roof */}
+        <polyline points="30,95 100,35 170,95" stroke="#CBD5E1" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        {/* Window */}
+        <rect x="88" y="72" width="24" height="23" rx="1" stroke="#CBD5E1" strokeWidth="2.5" fill="none"/>
+        <line x1="100" y1="72" x2="100" y2="95" stroke="#CBD5E1" strokeWidth="1.5"/>
+        <line x1="88" y1="83" x2="112" y2="83" stroke="#CBD5E1" strokeWidth="1.5"/>
+        {/* Building left */}
+        <rect x="32" y="60" width="32" height="38" stroke="#94A3B8" strokeWidth="2" fill="none"/>
+        <line x1="40" y1="68" x2="56" y2="68" stroke="#94A3B8" strokeWidth="1.2"/>
+        <line x1="40" y1="76" x2="56" y2="76" stroke="#94A3B8" strokeWidth="1.2"/>
+        <line x1="40" y1="84" x2="56" y2="84" stroke="#94A3B8" strokeWidth="1.2"/>
+        {/* AI chip */}
+        <rect x="118" y="28" width="42" height="42" rx="4" fill="#0D1B2E" stroke="#2563EB" strokeWidth="2.5"/>
+        <text x="139" y="56" textAnchor="middle" fontSize="18" fontWeight="800" fill="#2563EB" fontFamily="Arial, sans-serif">AI</text>
+        {/* Circuit lines */}
+        <line x1="128" y1="28" x2="128" y2="18" stroke="#2563EB" strokeWidth="1.8"/>
+        <line x1="139" y1="28" x2="139" y2="14" stroke="#2563EB" strokeWidth="1.8"/>
+        <line x1="150" y1="28" x2="150" y2="18" stroke="#2563EB" strokeWidth="1.8"/>
+        <line x1="160" y1="40" x2="172" y2="40" stroke="#2563EB" strokeWidth="1.8"/>
+        <line x1="160" y1="52" x2="176" y2="52" stroke="#2563EB" strokeWidth="1.8"/>
+        <line x1="160" y1="62" x2="172" y2="62" stroke="#2563EB" strokeWidth="1.8"/>
+        <circle cx="128" cy="17" r="3" fill="#2563EB"/>
+        <circle cx="139" cy="13" r="3" fill="#2563EB"/>
+        <circle cx="150" cy="17" r="3" fill="#2563EB"/>
+        <circle cx="173" cy="40" r="3" fill="#2563EB" opacity="0.6"/>
+        <circle cx="177" cy="52" r="3" fill="#2563EB"/>
+        <circle cx="173" cy="62" r="3" fill="#2563EB" opacity="0.6"/>
+        {/* Ground line */}
+        <line x1="20" y1="98" x2="180" y2="98" stroke="#475569" strokeWidth="1.5"/>
+      </svg>
+      {/* Text */}
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
+        <span style={{ fontSize: s * 0.18, fontWeight: 800, color: '#2563EB', letterSpacing: '0.05em', fontFamily: 'Inter, sans-serif' }}>EDA</span>
+        <span style={{ fontSize: s * 0.18, fontWeight: 800, color: '#F1F5F9', letterSpacing: '0.05em', fontFamily: 'Inter, sans-serif' }}>SYSTEMS</span>
+      </div>
+      <div style={{ fontSize: s * 0.075, color: '#475569', marginTop: 4, letterSpacing: '0.03em' }}>
+        — Ready to put your business on autopilot? —
+      </div>
+    </div>
+  )
+}
+
 // ─── Circuit Board Animation ──────────────────────────────────────────────────
 
 function CircuitBoard() {
@@ -328,8 +409,8 @@ function LandingScreen({ onSelect }) {
       {/* Content above canvas */}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
       {/* Logo */}
-      <div style={{ marginBottom: 24 }}>
-        <img src="/logo.png" alt="EDA Systems" style={{ height: 140, objectFit: 'contain' }} />
+      <div style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <EDALogo size={160} />
       </div>
       <div style={{ fontSize: 13, color: S.textMuted, letterSpacing: '0.1em', fontWeight: 600, marginBottom: 8 }}>INTERACTIEVE SALES DEMO</div>
       <h1 style={{ fontSize: 32, fontWeight: 800, color: '#fff', textAlign: 'center', letterSpacing: '-0.03em', marginBottom: 8 }}>
@@ -1070,7 +1151,7 @@ function Dashboard({ sectorId, onBack }) {
       <header style={{ background: S.card, borderBottom: `1px solid ${S.border}`, padding: '0 24px', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, height: 60 }}>
           {/* Logo */}
-          <img src="/logo.png" alt="EDA Systems" style={{ height: 40, objectFit: 'contain' }} />
+          <EDALogo size={36} compact />
 
           {/* Back */}
           <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'transparent', border: `1px solid ${S.border}`, borderRadius: 7, color: S.textSecondary, fontSize: 13, cursor: 'pointer' }}>
