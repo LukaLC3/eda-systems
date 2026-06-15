@@ -1,460 +1,206 @@
 import { useState, useEffect } from 'react'
-import { Phone, Video, MoreVertical, Send, Clock, Smile, ChevronRight } from 'lucide-react'
+import { Send, Mail, CheckCheck, Clock, Smile, AlertCircle, ChevronRight } from 'lucide-react'
 
-const SENTIMENT_COLORS = {
-  positief: '#10B981',
-  negatief: '#EF4444',
-  neutraal: '#F59E0B',
+function SentimentBadge({ text }) {
+  const pos = ['dank','super','perfect','goed','graag','fantastisch','geweldig','fijn','prima','top']
+  const neg = ['klacht','koud','traag','slecht','teleur','vervelend','pijn']
+  const l = text.toLowerCase()
+  if (neg.some(w => l.includes(w))) return <span className="badge badge-red" style={{fontSize:9}}>Negatief</span>
+  if (pos.some(w => l.includes(w))) return <span className="badge badge-green" style={{fontSize:9}}>Positief</span>
+  return <span className="badge" style={{fontSize:9,background:'rgba(100,116,139,0.15)',color:'#64748B',border:'1px solid rgba(100,116,139,0.2)'}}>Neutraal</span>
 }
 
-function detectSentiment(text) {
-  const lower = text.toLowerCase()
-  if (lower.includes('super') || lower.includes('dank') || lower.includes('prima') || lower.includes('graag') || lower.includes('uitstekend')) return 'positief'
-  if (lower.includes('niet') || lower.includes('kapot') || lower.includes('verkeerd') || lower.includes('klopt niet')) return 'negatief'
-  return 'neutraal'
+function TypingIndicator() {
+  return (
+    <div style={{ display:'flex', alignItems:'flex-end', gap:8, padding:'8px 0' }}>
+      <div style={{ width:28, height:28, borderRadius:8, background:'#25D366', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, color:'#fff', flexShrink:0 }}>AI</div>
+      <div style={{ padding:'10px 14px', borderRadius:'4px 14px 14px 14px', background:'rgba(15,30,55,0.95)', border:'1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ display:'flex', gap:4, alignItems:'center' }}>
+          {[0,1,2].map(i => <div key={i} className="typing-dot" style={{ width:7, height:7, borderRadius:'50%', background:'#25D366', animationDelay:`${i*0.2}s` }} />)}
+        </div>
+      </div>
+    </div>
+  )
 }
 
-export default function Communication({ sector, liveDemoMode, activePackage }) {
-  const [activeContact, setActiveContact] = useState(0)
-  const [isTyping, setIsTyping] = useState(false)
-  const conversations = sector.whatsappConversations
+export default function Communication({ sector, activePackage, liveDemoMode }) {
+  const { whatsapp = [], email, color } = sector
+  const [activeConv, setActiveConv] = useState(0)
+  const [showTyping, setShowTyping] = useState(false)
+  const [messages, setMessages] = useState(whatsapp[0]?.messages || [])
+  const [inputVal, setInputVal] = useState('')
+  const showSentiment = activePackage === 'aiagent'
+
+  useEffect(() => {
+    setActiveConv(0)
+    setMessages(whatsapp[0]?.messages || [])
+  }, [sector.id])
+
+  useEffect(() => {
+    setMessages(whatsapp[activeConv]?.messages || [])
+  }, [activeConv])
 
   useEffect(() => {
     if (!liveDemoMode) return
-    const interval = setInterval(() => {
-      setIsTyping(true)
-      setTimeout(() => setIsTyping(false), 2500)
+    const t = setTimeout(() => {
+      setShowTyping(true)
+      setTimeout(() => {
+        const now = new Date()
+        const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
+        setMessages(m => [...m, { from:'client', text:'Kunt u dit bevestigen?', time:ts }])
+        setShowTyping(false)
+        setTimeout(() => {
+          setShowTyping(true)
+          setTimeout(() => {
+            setMessages(m => [...m, { from:'ai', text:'✅ Bevestigd! Alles is automatisch verwerkt en u ontvangt een bevestigingsbericht.', time:ts, delay:'3 sec' }])
+            setShowTyping(false)
+          }, 1500)
+        }, 2000)
+      }, 1500)
     }, 6000)
-    return () => clearInterval(interval)
-  }, [liveDemoMode])
+    return () => clearTimeout(t)
+  }, [liveDemoMode, sector.id])
 
-  const activeConv = conversations[activeContact]
+  function sendMsg() {
+    if (!inputVal.trim()) return
+    const now = new Date()
+    const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
+    setMessages(m => [...m, { from:'client', text:inputVal, time:ts }])
+    setInputVal('')
+    setShowTyping(true)
+    setTimeout(() => {
+      setMessages(m => [...m, { from:'ai', text:'Bedankt voor uw bericht! Ik verwerk dit automatisch en kom zo snel mogelijk bij u terug. 🤖', time:ts, delay:'2 sec' }])
+      setShowTyping(false)
+    }, 1600)
+  }
+
+  const conv = whatsapp[activeConv]
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '55% 45%', gap: 16, height: '100%' }}>
-      {/* WhatsApp mockup */}
-      <div
-        style={{
-          background: '#111B21',
-          borderRadius: 12,
-          border: '1px solid rgba(37,99,235,0.15)',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: 480,
-        }}
-      >
+    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, height:'100%' }}>
+      {/* WhatsApp panel */}
+      <div style={{ background:'rgba(7,15,30,0.8)', border:'1px solid rgba(37,185,99,0.2)', borderRadius:14, overflow:'hidden', display:'flex', flexDirection:'column' }}>
         {/* WA Header */}
-        <div
-          style={{
-            background: '#202C33',
-            padding: '10px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-            flexShrink: 0,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                background: `${sector.color}30`,
-                border: `2px solid ${sector.color}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 12,
-                fontWeight: 700,
-                color: sector.color,
-                flexShrink: 0,
-              }}
-            >
-              {activeConv.avatar}
-            </div>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>{activeConv.contact}</div>
-              <div style={{ fontSize: 11, color: '#25D366' }}>
-                {isTyping ? 'Aan het typen...' : 'online'}
-              </div>
-            </div>
+        <div style={{ background:'#075E54', padding:'12px 16px', display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ width:8, height:8, borderRadius:'50%', background:'#25D366' }} className="pulse-dot" />
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:13, fontWeight:600, color:'#fff' }}>WhatsApp Business</div>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,0.6)' }}>EDA Assistant · Online · reageert in seconden</div>
           </div>
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: 14, color: 'rgba(255,255,255,0.5)' }}>
-            <Phone size={16} style={{ cursor: 'pointer' }} />
-            <Video size={16} style={{ cursor: 'pointer' }} />
-            <MoreVertical size={16} style={{ cursor: 'pointer' }} />
-          </div>
+          <div style={{ fontSize:10, fontFamily:'monospace', color:'#25D366', background:'rgba(37,211,102,0.15)', padding:'3px 8px', borderRadius:999, border:'1px solid rgba(37,211,102,0.3)' }}>LIVE AI</div>
         </div>
 
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-          {/* Contact list */}
-          <div
-            style={{
-              width: 160,
-              background: '#111B21',
-              borderRight: '1px solid rgba(255,255,255,0.05)',
-              overflowY: 'auto',
-              flexShrink: 0,
-            }}
-          >
-            {conversations.map((conv, idx) => (
-              <div
-                key={idx}
-                onClick={() => setActiveContact(idx)}
-                style={{
-                  padding: '12px 14px',
-                  cursor: 'pointer',
-                  background: idx === activeContact ? 'rgba(255,255,255,0.05)' : 'transparent',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
-              >
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    background: `${sector.color}25`,
-                    border: `1.5px solid ${sector.color}60`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: sector.color,
-                    flexShrink: 0,
-                  }}
-                >
-                  {conv.avatar}
+        {/* Conversation list */}
+        <div style={{ display:'flex', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
+          {whatsapp.map((c, i) => (
+            <button key={c.id} onClick={() => setActiveConv(i)} style={{ flex:1, padding:'10px 12px', background: i===activeConv ? 'rgba(37,211,102,0.08)' : 'transparent', border:'none', cursor:'pointer', borderBottom: i===activeConv ? '2px solid #25D366' : '2px solid transparent', transition:'all 0.15s' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                <div style={{ width:28, height:28, borderRadius:'50%', background: i===activeConv ? '#25D366' : 'rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:700, color:'#fff', flexShrink:0 }}>{c.avatar}</div>
+                <div style={{ textAlign:'left', minWidth:0 }}>
+                  <div style={{ fontSize:11, fontWeight:600, color: i===activeConv ? '#fff' : 'rgba(255,255,255,0.5)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{c.contact}</div>
+                  {c.status && <div style={{ fontSize:9, color:'#334155' }}>{c.status}</div>}
                 </div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {conv.contact.split(' ')[0]}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Messages */}
+        <div style={{ flex:1, overflowY:'auto', padding:'12px 14px', display:'flex', flexDirection:'column', gap:10, background:'#0B1E17' }}>
+          {messages.map((msg, i) => {
+            const isAI = msg.from === 'ai'
+            return (
+              <div key={i} className={i >= messages.length - 1 && msg.isNew ? 'fade-in' : ''} style={{ display:'flex', flexDirection:'column', alignItems: isAI ? 'flex-start' : 'flex-end', gap:3 }}>
+                {isAI && (
+                  <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:1 }}>
+                    <div style={{ width:20, height:20, borderRadius:5, background:'#25D366', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:700, color:'#fff' }}>AI</div>
+                    <span style={{ fontSize:10, color:'#25D366', fontWeight:600 }}>EDA Assistant</span>
                   </div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
-                    {conv.messages.length} berichten
+                )}
+                <div style={{ maxWidth:'82%', padding:'9px 13px', borderRadius: isAI ? '4px 14px 14px 14px' : '14px 4px 14px 14px', background: isAI ? 'rgba(15,30,40,0.97)' : '#005C4B', color:'rgba(255,255,255,0.9)', fontSize:12.5, lineHeight:1.55, whiteSpace:'pre-wrap', border: isAI ? '1px solid rgba(255,255,255,0.08)' : 'none', boxShadow: isAI ? '0 2px 8px rgba(0,0,0,0.3)' : 'none' }}>
+                  {msg.text}
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', gap:5, marginTop:4 }}>
+                    {showSentiment && <SentimentBadge text={msg.text} />}
+                    <span style={{ fontSize:10, color:'rgba(255,255,255,0.3)', fontFamily:'monospace' }}>{msg.time}</span>
+                    {isAI && msg.delay && <span style={{ fontSize:9, color:'#25D366', background:'rgba(37,211,102,0.1)', padding:'1px 5px', borderRadius:3 }}>⚡ {msg.delay}</span>}
+                    {!isAI && <CheckCheck size={11} color="rgba(255,255,255,0.3)" />}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            )
+          })}
+          {showTyping && <TypingIndicator />}
+        </div>
 
-          {/* Chat window */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div
-              style={{
-                flex: 1,
-                overflowY: 'auto',
-                padding: '16px 14px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-                backgroundImage: 'radial-gradient(circle, rgba(37,99,235,0.03) 1px, transparent 1px)',
-                backgroundSize: '20px 20px',
-              }}
-            >
-              {activeConv.messages.map((msg, i) => {
-                const isAI = msg.from === 'ai'
-                const sentiment = activePackage === 'aiagent' && !isAI ? detectSentiment(msg.text) : null
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      display: 'flex',
-                      justifyContent: isAI ? 'flex-end' : 'flex-start',
-                      alignItems: 'flex-end',
-                      gap: 6,
-                    }}
-                  >
-                    {!isAI && (
-                      <div
-                        style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: '50%',
-                          background: `${sector.color}30`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: 8,
-                          fontWeight: 700,
-                          color: sector.color,
-                          flexShrink: 0,
-                        }}
-                      >
-                        {activeConv.avatar}
-                      </div>
-                    )}
-                    <div style={{ maxWidth: '75%' }}>
-                      {isAI && (
-                        <div style={{ fontSize: 9, color: '#25D366', marginBottom: 3, textAlign: 'right', fontWeight: 600 }}>
-                          AI Agent
-                        </div>
-                      )}
-                      <div
-                        style={{
-                          padding: '8px 12px',
-                          borderRadius: isAI ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
-                          background: isAI ? '#005C4B' : '#202C33',
-                          color: 'rgba(255,255,255,0.9)',
-                          fontSize: 12.5,
-                          lineHeight: 1.5,
-                          whiteSpace: 'pre-wrap',
-                        }}
-                      >
-                        {msg.text}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3, justifyContent: isAI ? 'flex-end' : 'flex-start' }}>
-                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{msg.time}</span>
-                        {sentiment && (
-                          <span
-                            style={{
-                              fontSize: 9,
-                              padding: '1px 6px',
-                              borderRadius: 999,
-                              background: `${SENTIMENT_COLORS[sentiment]}20`,
-                              color: SENTIMENT_COLORS[sentiment],
-                              fontWeight: 600,
-                              border: `1px solid ${SENTIMENT_COLORS[sentiment]}40`,
-                            }}
-                          >
-                            {sentiment}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-
-              {/* Typing indicator */}
-              {isTyping && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <div
-                    style={{
-                      padding: '10px 14px',
-                      borderRadius: '12px 2px 12px 12px',
-                      background: '#005C4B',
-                      display: 'flex',
-                      gap: 4,
-                      alignItems: 'center',
-                    }}
-                  >
-                    {[0, 1, 2].map(d => (
-                      <div
-                        key={d}
-                        style={{
-                          width: 7,
-                          height: 7,
-                          borderRadius: '50%',
-                          background: '#25D366',
-                          animation: `pulseDot 1.2s ${d * 0.2}s infinite`,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Input bar */}
-            <div
-              style={{
-                padding: '10px 14px',
-                background: '#202C33',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                flexShrink: 0,
-              }}
-            >
-              <Smile size={18} style={{ color: 'rgba(255,255,255,0.4)', flexShrink: 0 }} />
-              <div
-                style={{
-                  flex: 1,
-                  background: '#2A3942',
-                  borderRadius: 20,
-                  padding: '8px 14px',
-                  fontSize: 12,
-                  color: 'rgba(255,255,255,0.4)',
-                }}
-              >
-                Typ een bericht...
-              </div>
-              <Send size={18} style={{ color: '#25D366', flexShrink: 0 }} />
-            </div>
-          </div>
+        {/* Input */}
+        <div style={{ padding:'10px 12px', background:'#075E54', display:'flex', gap:8, alignItems:'center' }}>
+          <input value={inputVal} onChange={e => setInputVal(e.target.value)} onKeyDown={e => e.key==='Enter' && sendMsg()} placeholder="Typ een testbericht..." style={{ flex:1, background:'rgba(255,255,255,0.1)', border:'none', borderRadius:999, padding:'8px 14px', color:'#fff', fontSize:12, outline:'none' }} />
+          <button onClick={sendMsg} style={{ width:34, height:34, borderRadius:'50%', background:'#25D366', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <Send size={14} color="#fff" />
+          </button>
         </div>
       </div>
 
-      {/* Email section */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>E-mail Automatisering</div>
-          <div
-            style={{
-              fontSize: 10,
-              padding: '2px 8px',
-              borderRadius: 999,
-              background: 'rgba(37,99,235,0.2)',
-              color: '#60A5FA',
-              fontFamily: 'JetBrains Mono, monospace',
-            }}
-          >
-            AI
-          </div>
-        </div>
-
-        {/* Original email */}
-        <div
-          style={{
-            background: 'rgba(10,22,40,0.8)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 10,
-            padding: 16,
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-            <div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 3 }}>VAN</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>{sector.emailExample.from}</div>
-            </div>
-            <div
-              style={{
-                fontSize: 10,
-                padding: '3px 8px',
-                borderRadius: 6,
-                background: 'rgba(255,255,255,0.06)',
-                color: 'rgba(255,255,255,0.4)',
-              }}
-            >
-              Inkomend
-            </div>
-          </div>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: 'white',
-              marginBottom: 10,
-              padding: '6px 0',
-              borderBottom: '1px solid rgba(255,255,255,0.06)',
-            }}
-          >
-            {sector.emailExample.subject}
-          </div>
-          <p
-            style={{
-              margin: 0,
-              fontSize: 12,
-              color: 'rgba(255,255,255,0.6)',
-              lineHeight: 1.6,
-              whiteSpace: 'pre-wrap',
-            }}
-          >
-            {sector.emailExample.original}
-          </p>
-        </div>
-
-        {/* Arrow */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '4px 12px',
-              borderRadius: 999,
-              background: 'rgba(37,99,235,0.15)',
-              border: '1px solid rgba(37,99,235,0.3)',
-              fontSize: 11,
-              color: '#60A5FA',
-            }}
-          >
-            <Clock size={11} />
-            AI analyseert & antwoordt in {sector.emailExample.responseTime}
-          </div>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
-        </div>
-
-        {/* AI Reply */}
-        <div
-          style={{
-            background: 'rgba(37,99,235,0.06)',
-            border: '1px solid rgba(37,99,235,0.25)',
-            borderRadius: 10,
-            padding: 16,
-            boxShadow: '0 0 20px rgba(37,99,235,0.08)',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div
-                style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: 6,
-                  background: '#2563EB',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: 'white',
-                }}
-              >
-                AI
-              </div>
+      {/* Email panel */}
+      <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+        {email && (
+          <div style={{ background:'rgba(7,15,30,0.8)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:14, overflow:'hidden', flex:1 }}>
+            <div style={{ padding:'12px 16px', borderBottom:'1px solid rgba(255,255,255,0.06)', display:'flex', alignItems:'center', gap:8 }}>
+              <Mail size={15} color={color} />
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'white' }}>AI Antwoord</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>automatisch verstuurd</div>
+                <div style={{ fontSize:13, fontWeight:600, color:'#fff' }}>E-mail Automatisering</div>
+                <div style={{ fontSize:10, color:'#475569' }}>AI leest & beantwoordt e-mails automatisch</div>
+              </div>
+              <div style={{ marginLeft:'auto', fontSize:10, fontFamily:'monospace', color:'#10B981', background:'rgba(16,185,129,0.1)', padding:'3px 8px', borderRadius:999, border:'1px solid rgba(16,185,129,0.2)' }}>
+                ⚡ {email.responseTime}
               </div>
             </div>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5,
-                fontSize: 10,
-                padding: '3px 10px',
-                borderRadius: 999,
-                background: 'rgba(16,185,129,0.15)',
-                color: '#10B981',
-                border: '1px solid rgba(16,185,129,0.3)',
-              }}
-            >
-              <Clock size={9} />
-              {sector.emailExample.responseTime}
+
+            {/* Original */}
+            <div style={{ padding:'14px 16px', borderBottom:'1px solid rgba(255,255,255,0.04)' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:8 }}>
+                <div style={{ width:6, height:6, borderRadius:'50%', background:'#475569' }} />
+                <span style={{ fontSize:10, color:'#475569', fontWeight:600, textTransform:'uppercase', letterSpacing:0.8 }}>Ontvangen e-mail</span>
+              </div>
+              <div style={{ fontSize:11, color:'#64748B', marginBottom:6 }}>
+                <strong style={{ color:'rgba(255,255,255,0.4)' }}>Van:</strong> {email.from}<br />
+                <strong style={{ color:'rgba(255,255,255,0.4)' }}>Onderwerp:</strong> {email.subject}
+              </div>
+              <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:8, padding:'10px 12px', fontSize:12, color:'rgba(255,255,255,0.5)', lineHeight:1.6, whiteSpace:'pre-wrap' }}>
+                {email.original}
+              </div>
+            </div>
+
+            {/* AI Reply */}
+            <div style={{ padding:'14px 16px' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:8 }}>
+                <div style={{ width:6, height:6, borderRadius:'50%', background:color }} />
+                <span style={{ fontSize:10, color:color, fontWeight:600, textTransform:'uppercase', letterSpacing:0.8 }}>AI Antwoord</span>
+                <span style={{ marginLeft:'auto', fontSize:9, color:'#475569', fontFamily:'monospace' }}>Verstuurd binnen {email.responseTime}</span>
+              </div>
+              <div style={{ background:`${color}10`, border:`1px solid ${color}25`, borderRadius:8, padding:'10px 12px', fontSize:12, color:'rgba(255,255,255,0.75)', lineHeight:1.7, whiteSpace:'pre-wrap' }}>
+                {email.aiReply}
+              </div>
             </div>
           </div>
-          <p
-            style={{
-              margin: 0,
-              fontSize: 12,
-              color: 'rgba(255,255,255,0.75)',
-              lineHeight: 1.6,
-              whiteSpace: 'pre-wrap',
-            }}
-          >
-            {sector.emailExample.aiReply}
-          </p>
-        </div>
+        )}
 
-        <div
-          style={{
-            textAlign: 'center',
-            fontSize: 11,
-            color: 'rgba(255,255,255,0.35)',
-            padding: '4px 0',
-          }}
-        >
-          AI leest en beantwoordt e-mails automatisch · 24/7 beschikbaar
+        {/* AI stats */}
+        <div style={{ background:'rgba(7,15,30,0.8)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:14, padding:16 }}>
+          <div style={{ fontSize:12, fontWeight:600, color:'#fff', marginBottom:12 }}>Communicatiestatistieken vandaag</div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+            {[
+              { label:'WhatsApp beantwoord', value:'100%', color:'#25D366' },
+              { label:'E-mails verwerkt', value:'18', color:color },
+              { label:'Gem. responstijd', value:email?.responseTime || '2m 30s', color:'#F59E0B' },
+              { label:'Klanttevredenheid', value:'4.8★', color:'#F59E0B' },
+            ].map((s,i) => (
+              <div key={i} style={{ background:'rgba(255,255,255,0.03)', borderRadius:9, padding:'10px 12px', border:'1px solid rgba(255,255,255,0.05)' }}>
+                <div className="num" style={{ fontSize:18, fontWeight:700, color:s.color }}>{s.value}</div>
+                <div style={{ fontSize:10, color:'#475569', marginTop:2 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
