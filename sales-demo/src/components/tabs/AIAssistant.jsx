@@ -1,113 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
 import { Send, Bot, User, Sparkles } from 'lucide-react'
 
-const SECTOR_QA = {
-  vastgoed: {
-    chips: [
-      'Welke panden zijn beschikbaar onder €1.800/mnd?',
-      'Hoe verloopt het bezichtigingsproces?',
-      'Wat zijn jullie makelaarskosten?',
-      'Hoe lang duurt een huurcontract opstellen?',
-    ],
-    answers: {
-      'Welke panden zijn beschikbaar onder €1.800/mnd?': 'Op dit moment hebben wij 6 woningen beschikbaar onder €1.800 per maand in uw zoekgebied:\n\n• Bloemgracht 24 – 3-kamer, 85m², €1.550/mnd\n• Elandsgracht 67 – 4-kamer, 98m², €1.595/mnd\n• Prinsengracht 12 – 2-kamer, 55m², €1.250/mnd\n• Jordaan studio – 42m², €895/mnd\n\nWilt u voor één of meerdere panden een bezichtiging inplannen?',
-      default: 'Dank u voor uw vraag! Ik help u graag verder. Op basis van uw vraag kan ik u direct informeren over beschikbaarheid, prijzen en het verhuurproces. Kunt u uw vraag wat meer specificeren zodat ik u optimaal kan helpen?',
-    },
-  },
-  zorg: {
-    chips: [
-      'Hoe maak ik een nieuwe afspraak?',
-      'Wat zijn de openingstijden van de praktijk?',
-      'Hoe vraag ik een verwijsbrief aan?',
-      'Welke verzekeringen worden geaccepteerd?',
-    ],
-    answers: {
-      'Hoe maak ik een nieuwe afspraak?': 'Een afspraak maken is eenvoudig! U heeft drie opties:\n\n1️⃣ Via WhatsApp – Stuur ons een bericht en wij plannen direct een afspraak in\n2️⃣ Online – Via onze website kunt u 24/7 een afspraak inplannen\n3️⃣ Telefonisch – Bel ons op ma-vr tussen 08:00 en 17:00\n\nDe eerstvolgende beschikbare afspraken zijn: morgen 10:30 en overmorgen 09:00. Welk tijdstip past u?',
-      default: 'Goedemorgen! Ik ben de AI-assistent van onze zorgpraktijk en help u graag verder. Voor medische vragen verwijs ik u altijd door naar onze zorgprofessionals, maar voor praktische vragen sta ik 24/7 klaar!',
-    },
-  },
-  fitness: {
-    chips: [
-      'Welke groepslessen zijn er deze week?',
-      'Wat kost een maandabonnement?',
-      'Is er een proefperiode mogelijk?',
-      'Hoe annuleer ik mijn abonnement?',
-    ],
-    answers: {
-      'Welke groepslessen zijn er deze week?': 'Deze week staan de volgende groepslessen ingepland:\n\n🏋️ BodyPump – Ma/Wo/Vr 09:00 & 18:30\n🔥 HIIT Training – Di/Do 07:00 & 17:30\n🧘 Yoga – Ma/Wo 10:00 & 19:00\n🚴 Spinning – Di/Do 06:30 & 18:00\n💪 Pilates – Wo/Vr 11:00\n\nAlle lessen duren 60 minuten. Wilt u een plek reserveren voor een specifieke les?',
-      default: 'Hey! 💪 Ik ben de AI-assistent van FitZone en help je graag verder. Of je nu vragen hebt over abonnementen, roosters of trainingsschema\'s — ik sta voor je klaar!',
-    },
-  },
-  administratie: {
-    chips: [
-      'Wanneer is mijn aangifte gereed?',
-      'Hoe upload ik documenten?',
-      'Wat zijn jullie tarieven?',
-      'Kan ik mijn facturen inzien?',
-    ],
-    answers: {
-      'Wanneer is mijn aangifte gereed?': 'Uw belastingaangifte 2025 staat ingepland voor oplevering op vrijdag 14 juni. De accountant heeft het concept gisteren ontvangen voor finale review.\n\nU ontvangt een e-mail zodra de aangifte definitief klaar is ter ondertekening. Wilt u een voorlopig overzicht van de kerncijfers?',
-      default: 'Goedemiddag! Ik ben de digitale assistent van uw administratiekantoor. Ik kan u helpen met vragen over uw dossier, deadlines, documenten en meer. Wat kan ik voor u doen?',
-    },
-  },
-  creatief: {
-    chips: [
-      'Hoelang duurt een logo ontwerp?',
-      'Wat kost een complete huisstijl?',
-      'Kunnen jullie ook social media content maken?',
-      'Hoe verloopt het revisieproces?',
-    ],
-    answers: {
-      'Hoelang duurt een logo ontwerp?': 'Een volledig logo traject doorloopt de volgende fases:\n\n1️⃣ Briefing & research – 2-3 dagen\n2️⃣ Eerste concepten (3 richtingen) – 4-5 werkdagen\n3️⃣ Revisieronde – 2 werkdagen\n4️⃣ Finale oplevering met alle bestandsformaten – 1 dag\n\nTotale doorlooptijd: **10-14 werkdagen** inclusief 2 revisierondes.\n\nSpoed mogelijk voor een toeslag van 25%. Heeft u een deadline waar we rekening mee moeten houden?',
-      default: 'Hoi! Ik ben de creatieve AI-assistent van ons bureau. Of je nu vragen hebt over projecten, offertes of ons creatief proces — ik help je graag verder!',
-    },
-  },
-  technisch: {
-    chips: [
-      'Hoe meld ik een storing?',
-      'Hoe snel komt er een monteur?',
-      'Wat kost een servicecontract?',
-      'Is er 24/7 spoedservice?',
-    ],
-    answers: {
-      'Hoe meld ik een storing?': 'Een storing melden kan via meerdere kanalen:\n\n📱 WhatsApp – Stuur een bericht met foto/video van het probleem\n📞 Telefoon – 085-123 4567 (ma-vr 07:00-18:00, spoedlijn 24/7)\n🌐 Online – Via het klantenportaal\n📧 E-mail – storingen@eda-technisch.nl\n\nBij een spoedmelding (geen warm water / geen stroom) reageren wij binnen 30 minuten en sturen wij direct een monteur.\n\nWat is het type storing?',
-      default: 'Goedemorgen! Ik ben de technische AI-assistent. Ik kan u helpen bij het melden van storingen, inplannen van onderhoud en beantwoorden van technische vragen. Wat kan ik voor u doen?',
-    },
-  },
-  horeca: {
-    chips: [
-      'Kan ik een tafel reserveren voor vanavond?',
-      'Hebben jullie een vegetarisch menu?',
-      'Wat zijn de openingstijden?',
-      'Is er parkeergelegenheid?',
-    ],
-    answers: {
-      'Kan ik een tafel reserveren voor vanavond?': 'Goedemiddag! Vanavond hebben wij nog beschikbaarheid op de volgende tijdstippen:\n\n🕕 18:00 – 2 t/m 4 personen beschikbaar\n🕖 19:00 – Alleen nog 2-persoonstafel\n🕗 20:30 – Ruime beschikbaarheid\n\nHoeveel personen bent u met en welke tijd heeft uw voorkeur? Dan maak ik direct een reservering voor u aan!',
-      default: 'Welkom! Ik ben de digitale gastheer van ons restaurant. Ik help u graag met reserveringen, menuinformatie, openingstijden en meer. Waarmee kan ik u van dienst zijn?',
-    },
-  },
-}
-
 function getInitialMessages(sector) {
-  const qa = SECTOR_QA[sector.id] || SECTOR_QA.vastgoed
-  const chip = qa.chips[0]
-  const answer = qa.answers[chip] || qa.answers.default
+  const firstQ = sector.aiQuestions?.[0]
   return [
     {
       from: 'ai',
-      text: `Welkom! Ik ben de AI-assistent getraind op uw ${sector.name.toLowerCase()} bedrijf. Stel mij een vraag over uw sector, klanten of processen.`,
+      text: `Welkom! Ik ben de AI-assistent getraind op uw ${sector.name.toLowerCase()} bedrijf. Ik heb toegang tot al uw klantdata, agenda en administratie. Stel mij een vraag.`,
       time: getTime(-4),
     },
-    {
-      from: 'user',
-      text: chip,
-      time: getTime(-3),
-    },
-    {
-      from: 'ai',
-      text: answer,
-      time: getTime(-2),
-    },
+    ...(firstQ ? [
+      { from: 'user', text: firstQ.q, time: getTime(-3) },
+      { from: 'ai', text: firstQ.a, time: getTime(-2) },
+    ] : []),
   ]
 }
 
@@ -117,7 +22,9 @@ function getTime(offsetMinutes = 0) {
 }
 
 export default function AIAssistant({ sector }) {
-  const qa = SECTOR_QA[sector.id] || SECTOR_QA.vastgoed
+  const questions = sector.aiQuestions || []
+  const chips = questions.map(q => q.q)
+
   const [messages, setMessages] = useState(() => getInitialMessages(sector))
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -134,12 +41,14 @@ export default function AIAssistant({ sector }) {
   }, [messages, isTyping])
 
   function getAnswer(question) {
-    if (qa.answers[question]) return qa.answers[question]
+    // exact match on predefined questions
+    const match = questions.find(q => q.q === question)
+    if (match) return match.a
+    // fuzzy match
     const lower = question.toLowerCase()
-    for (const [key, val] of Object.entries(qa.answers)) {
-      if (key !== 'default' && lower.includes(key.toLowerCase().slice(0, 15))) return val
-    }
-    return qa.answers.default || `Bedankt voor uw vraag over "${question}". Ik ben getraind op specifieke kennis van de ${sector.name} sector en help u graag verder. Kunt u uw vraag wat meer specificeren?`
+    const fuzzy = questions.find(q => lower.includes(q.q.toLowerCase().slice(0, 12)))
+    if (fuzzy) return fuzzy.a
+    return `Bedankt voor uw vraag! Ik ben getraind op de data van uw ${sector.name.toLowerCase()} bedrijf en help u graag verder. Voor dit specifieke onderwerp kan ik u doorverbinden met uw accountmanager of een gedetailleerd rapport genereren. Wat heeft uw voorkeur?`
   }
 
   function handleSend(text) {
@@ -243,7 +152,7 @@ export default function AIAssistant({ sector }) {
 
       {/* Quick reply chips */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-        {qa.chips.map((chip, i) => (
+        {chips.map((chip, i) => (
           <button
             key={i}
             onClick={() => handleSend(chip)}
